@@ -7,8 +7,8 @@ edition = "2024"
 iced.workspace = true
 
 [workspace.dependencies.iced]
-git = "https://github.com/iced-rs/iced"
-branch = "master"
+git = "https://github.com/pml68/iced"
+branch = "feat/rehighlight-on-redraw"
 features = ["advanced"]
 
 [workspace]
