@@ -7,10 +7,8 @@ rust-versio = "1.88"
 [dependencies]
 iced.workspace = true
 
-[workspace.dependencies.iced]
-git = "https://github.com/iced-rs/iced"
-branch = "master"
-features = ["advanced"]
+[workspace.dependencies]
+iced = { version = "0.14", features = ["advanced"] }
 
 [workspace]
 members = ["examples/*"]
