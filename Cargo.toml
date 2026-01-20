@@ -19,7 +19,7 @@ iced = {version = "0.15.0-dev"}
 helpers = ["iced_runtime"]
 
 [patch.crates-io]
-iced_core = { git = "https://github.com/iced-rs/iced", rev = "9003733", package = "iced_core" }
-iced_widget = { git = "https://github.com/iced-rs/iced", rev = "9003733", package = "iced_widget" }
-iced_runtime = { git = "https://github.com/iced-rs/iced", rev = "9003733", package = "iced_runtime" }
-iced = { git = "https://github.com/iced-rs/iced", rev = "9003733" }
+iced_core = { git = "https://github.com/iced-rs/iced", package = "iced_core" }
+iced_widget = { git = "https://github.com/iced-rs/iced", package = "iced_widget" }
+iced_runtime = { git = "https://github.com/iced-rs/iced", package = "iced_runtime" }
+iced = { git = "https://github.com/iced-rs/iced" }
