@@ -1,16 +1,25 @@
 [package]
 name = "iced_drop"
-version = "0.2.2"
+version = "0.2.2-dev"
+rust-version = "1.92.0"
 edition = "2024"
-rust-version = "1.88"
 
 [dependencies]
-iced_core = "0.14"
-iced_widget = "0.14"
-iced_runtime = { version = "0.14", optional = true }
+iced_core = "0.15.0-dev"
+iced_widget = "0.15.0-dev"
+iced_runtime = { version = "0.15.0-dev", optional = true }
 
 [workspace]
 members = ["examples/*"]
 
+[workspace.dependencies]
+iced = {version = "0.15.0-dev"}
+
 [features]
 helpers = ["iced_runtime"]
+
+[patch.crates-io]
+iced_core = { git = "https://github.com/iced-rs/iced", rev = "9003733", package = "iced_core" }
+iced_widget = { git = "https://github.com/iced-rs/iced", rev = "9003733", package = "iced_widget" }
+iced_runtime = { git = "https://github.com/iced-rs/iced", rev = "9003733", package = "iced_runtime" }
+iced = { git = "https://github.com/iced-rs/iced", rev = "9003733" }
