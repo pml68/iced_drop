@@ -1,5 +1,8 @@
 # iced_drop
 
+[!WARNING]
+This library tracks the `main` branch of iced, which may contain breaking changes. Builds are not guaranteed to be stable. If presented with errors, open an issue/pull request.
+
 A small library which provides a custom widget and operation to make drag and drop easier to implement in [iced](https://github.com/iced-rs/iced/tree/master)
 
 ## Easy Usage
