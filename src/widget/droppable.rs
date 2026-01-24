@@ -6,7 +6,7 @@ use iced_core::widget::tree::Tag;
 use iced_core::widget::{Id, Operation, Tree};
 use iced_core::{
     Element, Event, Layout, Length, Pixels, Point, Rectangle, Size, Vector,
-    Widget, mouse, overlay, renderer, window,
+    Widget, mouse, overlay, renderer, touch, window,
 };
 use std::fmt::Debug;
 use std::vec;
@@ -317,18 +317,17 @@ where
             }
         }
 
-        if let Some(on_drop) = self.on_drop.as_deref()
-            && let Event::Mouse(mouse) = event
-        {
-            match mouse {
-                mouse::Event::ButtonPressed(btn) => {
-                    if *btn == mouse::Button::Left
-                        && cursor.is_over(layout.bounds())
-                    {
+        if let Some(on_drop) = self.on_drop.as_deref() {
+            match event {
+                Event::Mouse(mouse::Event::ButtonPressed(
+                    mouse::Button::Left,
+                ))
+                | Event::Touch(touch::Event::FingerPressed { .. }) => {
+                    let bounds = layout.bounds();
+                    if cursor.is_over(bounds) {
                         // select the droppable and store the position of the widget before dragging
                         state.action =
                             Action::Select(cursor.position().unwrap());
-                        let bounds = layout.bounds();
                         state.widget_pos = bounds.position();
                         state.overlay_bounds.width = bounds.width;
                         state.overlay_bounds.height = bounds.height;
@@ -338,9 +337,13 @@ where
                         }
 
                         shell.capture_event();
-                    } else if *btn == mouse::Button::Right
-                        && let Action::Drag(_, _) = state.action
-                    {
+                    }
+                }
+                Event::Mouse(mouse::Event::ButtonPressed(
+                    mouse::Button::Right,
+                ))
+                | Event::Touch(touch::Event::FingerLost { .. }) => {
+                    if let Action::Drag(_, _) = state.action {
                         state.action = Action::None;
                         if let Some(on_cancel) = self.on_cancel.clone() {
                             shell.publish(on_cancel);
@@ -350,7 +353,40 @@ where
                         shell.request_redraw();
                     }
                 }
-                &mouse::Event::CursorMoved { mut position } => {
+                Event::Mouse(mouse::Event::ButtonReleased(
+                    mouse::Button::Left,
+                ))
+                | Event::Touch(touch::Event::FingerLifted { .. }) => {
+                    match state.action {
+                        Action::Select(_) => {
+                            if let Some(on_press) = self.on_press.clone() {
+                                shell.publish(on_press);
+                            }
+
+                            state.action = Action::None;
+                        }
+                        Action::Drag(_, current) => {
+                            // send on drop msg
+                            let message =
+                                (on_drop)(current, state.overlay_bounds);
+                            shell.publish(message);
+
+                            if self.reset_delay == 0 {
+                                state.action = Action::None;
+                            } else {
+                                state.action = Action::Wait(self.reset_delay);
+                            }
+                        }
+                        _ => (),
+                    }
+                }
+                Event::Mouse(mouse::Event::CursorMoved { position })
+                | Event::Touch(touch::Event::FingerMoved {
+                    position,
+                    ..
+                }) => {
+                    let mut position = position.clone();
+
                     let should_drag = match state.action {
                         Action::Select(start) => {
                             // Check if cursor has moved from the initial click position
@@ -404,33 +440,6 @@ where
                         }
 
                         shell.request_redraw();
-                    }
-                }
-                mouse::Event::ButtonReleased(btn) => {
-                    if *btn == mouse::Button::Left {
-                        match state.action {
-                            Action::Select(_) => {
-                                if let Some(on_press) = self.on_press.clone() {
-                                    shell.publish(on_press);
-                                }
-
-                                state.action = Action::None;
-                            }
-                            Action::Drag(_, current) => {
-                                // send on drop msg
-                                let message =
-                                    (on_drop)(current, state.overlay_bounds);
-                                shell.publish(message);
-
-                                if self.reset_delay == 0 {
-                                    state.action = Action::None;
-                                } else {
-                                    state.action =
-                                        Action::Wait(self.reset_delay);
-                                }
-                            }
-                            _ => (),
-                        }
                     }
                 }
                 _ => {}
